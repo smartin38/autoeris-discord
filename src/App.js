@@ -1,20 +1,38 @@
-import { Route, Switch } from 'react-router-dom'
+import { BrowserRouter as Router } from "react-router-dom";
+import LoggedIn from "./LoggedIn";
+import LoggedOut from "./LoggedOut";
 import { createGlobalStyle } from 'styled-components'
 import { useEffect, useState } from 'react'
 import Home from './components/Home'
-import Navigation from './components/Navigation'
 import UserPage from './components/UserPage'
-import SignUp from './components/Signup'
-import Login from './components/Login'
+import SignUp from './components/SignupForm'
+import Login from './components/LoginForm'
 import NotFound from './components/NotFound'
 
 function App() {
-    const [productions, setProductions] = useState([])
+    const [currentUser, setCurrentUser] = useState(null);
     const [errors, setErrors] = useState(false)
 
     useEffect(() => {
-        fetchProductions()
-    }, [])
+        fetch("/me").then((res) => {
+            if (res.ok) {
+                res.json().then((user) => {
+                    setCurrentUser(user);
+                    setIsAuthenticated(true);
+                });
+            }
+        });
+    }, []);
+
+    if (!isAuthenticated) {
+        return <div></div>;
+    }
+    return (
+        <div className="app">
+            <Router>{false ? <LoggedIn /> : <LoggedOut />}</Router>
+        </div>
+    );
+};
 
     const fetchProductions = () => {
         fetch('/productions')
@@ -47,7 +65,7 @@ function App() {
     return (
         <>
             <GlobalStyle />
-            <Navigation />
+            <Home />
             <Switch>
 
                 <Route path='/users/new'>
